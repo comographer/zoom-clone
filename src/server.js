@@ -1,5 +1,8 @@
+// http package included in node js;
 import http from "http";
+// Enable SocketIO;
 import SocketIO from "socket.io";
+// Enable express;
 import express from "express";
 
 // Enable express;
@@ -18,32 +21,49 @@ app.get("/*", (_, res) => res.redirect("/"));
 
 // Create http server with express();
 const httpServer = http.createServer(app);
-// Enable http server to run ws server as well;
+// Enable http server to run ws(SocketIO) server as well;
 const wsServer = SocketIO(httpServer);
 
+// Getting connection between server and browser;
 wsServer.on("connection", (socket) => {
-  socket["nickname"] = "User";
-  socket.onAny((event) => {
-    console.log(`Socket Event: ${event}`);
-  });
+  // Receive event from client side;
   socket.on("enter_room", (roomName, done) => {
-    socket.join(roomName);
-    done();
-    socket.to(roomName).emit("welcome", socket.nickname);
+    console.log(roomName);
+    setTimeout(() => {
+      done("Hello from the backend");
+    }, 5000);
   });
-  socket.on("disconnecting", () => {
-    socket.rooms.forEach((room) =>
-      socket.to(room).emit("bye", socket.nickname)
-    );
-  });
-  socket.on("new_message", (msg, room, done) => {
-    socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
-    done();
-  });
-  socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
 
 // Console log link when connection is made;
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 // Assign port number(3000) and handleListen function;
 httpServer.listen(3000, handleListen);
+
+/* Notes
+A socket is the connection between server and the browser;
+*/
+
+/* 2.0 SocketIO vs WebSockets
+SocketIO is framework that supports real-time bidrectional and event-based communication;
+It uses WS by default but also other methods to provide real-time communication;
+*/
+
+/* 2.1 Installing SocketIO
+npm i socket.io;
+By creating a SocketIO server, we get access to /socket.io/socket.io.js;
+This script is given to the frontend;
+
+To receive connection between server and browser: server.on("connection", (socket) => {});
+When the connection is created, client side receives the function io() that automatically
+enables connection to the server side: const socket = io();
+*/
+
+/* 2.2 SocketIO is Amazing
+Frontend: socket.emit("event", msgObject, callbackFunction) sends event to the server side;
+socket.emit() also receives a callbackFunction as thrid argument;
+This is also sent to the server side;
+Backend: socket.on("event", (msgObject, callbackFunction) => {}) receives the event from the client side;
+The callbackFunction will be executed on the client side once server side finishes;
+When that is happending, the callbackFunction can also bring and argument sent from the server side;
+*/
