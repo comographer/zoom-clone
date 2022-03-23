@@ -26,12 +26,15 @@ const wsServer = SocketIO(httpServer);
 
 // Getting connection between server and browser;
 wsServer.on("connection", (socket) => {
+  // Follow and update socket events to server side;
+  socket.onAny((event) => {
+    console.log(`Socket Event: ${event}`);
+  });
   // Receive event from client side;
   socket.on("enter_room", (roomName, done) => {
-    console.log(roomName);
-    setTimeout(() => {
-      done("Hello from the backend");
-    }, 5000);
+    // Join a socket group(room)
+    socket.join(roomName);
+    done();
   });
 });
 
@@ -40,7 +43,7 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 // Assign port number(3000) and handleListen function;
 httpServer.listen(3000, handleListen);
 
-/* Notes
+/* 1.0 - 1.9
 A socket is the connection between server and the browser;
 */
 
@@ -66,4 +69,10 @@ This is also sent to the server side;
 Backend: socket.on("event", (msgObject, callbackFunction) => {}) receives the event from the client side;
 The callbackFunction will be executed on the client side once server side finishes;
 When that is happending, the callbackFunction can also bring and argument sent from the server side;
+*/
+
+/* 2.4 Rooms
+SocketIO has function to create rooms(socket group) by default;
+On the server side: socket.join("roomName");
+Send a message to the room: socket.to("roomName");
 */
