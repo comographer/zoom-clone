@@ -35,6 +35,16 @@ wsServer.on("connection", (socket) => {
     // Join a socket group(room)
     socket.join(roomName);
     done();
+    // Send "welcome" event to client side of roomName;
+    socket.to(roomName).emit("welcome");
+  });
+  socket.on("disconnecting", () => {
+    // Send "bye" event to all rooms' client side;
+    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+  });
+  socket.on("new_message", (msg, roomName, done) => {
+    socket.to(roomName).emit("new_message", msg);
+    done();
   });
 });
 
@@ -75,4 +85,22 @@ When that is happending, the callbackFunction can also bring and argument sent f
 SocketIO has function to create rooms(socket group) by default;
 On the server side: socket.join("roomName");
 Send a message to the room: socket.to("roomName");
+*/
+
+/* 2.5 Room Messages
+To send a message to a room(Server side): socket.to("roomName").emit("event");
+(Client side): socket.on("key", function);
+*/
+
+/* 2.6 Room Notifications
+SocketIO also has event "disconnecting": client is going to be disconnect but hasn't left the room yet;
+By using this, we can inform people in the room that someone is leaving;
+Backend : 
+socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+  });
+Frontend :
+socket.on("bye", () => {
+  addMessage("someone left ㅠㅠ");
+});
 */
