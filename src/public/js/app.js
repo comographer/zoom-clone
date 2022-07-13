@@ -64,3 +64,5 @@ socket.on("bye", () => {
 });
 
 socket.on("new_message", addMessage);
+
+// #2.3
