@@ -20,10 +20,18 @@ const server = http.createServer(app);
 // Handling http server and ws server together on same port
 const wss = new WebSocket.Server({ server });
 
+function onSocketClose() {
+  console.log("Disconnected from the Browser ❌");
+}
+
+function onSocketMessage(message) {
+  console.log(message.toString());
+}
+
 wss.on("connection", (socket) => {
   console.log("Connected to the Browser ✅");
-  socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-  socket.on("message", (message) => console.log(message.toString()));
+  socket.on("close", onSocketClose);
+  socket.on("message", onSocketMessage);
   socket.send("hello!!");
 });
 
